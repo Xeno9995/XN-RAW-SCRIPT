@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>XnScripts | Roblox</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #172036;
+      --bg: #101522;
+      --surface: #172036;
+      --surface-alt: #1d263b;
+      --card: #172036;
+      --accent: #2196f3;
+      --accent2: #40a8fc;
+      --danger: #e17055;
+      --success: #00b894;
+      --gray: #b2bec3;
+      --border: #22304a;
+      --shadow: 0 2px 16px 0 #1115;
+      --radius: 18px;
+      --radius-sm: 12px;
+      --radius-lg: 26px;
+      --text: #fff;
+      --scrollbar: #22304a;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; padding: 0; }
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      z-index: 1;
+      position: relative;
+    }
+    a { color: var(--accent2); text-decoration: underline;}
+    ::selection { background: var(--accent2); color: #fff;}
+    ::-webkit-scrollbar {width:13px;background:transparent;}
+    ::-webkit-scrollbar-thumb {background: var(--scrollbar); border-radius: 12px;}
+    @keyframes fadeIn {from {opacity:0; transform:translateY(35px);} to {opacity:1; transform:none;}}
+    @keyframes scaleIn {from{transform:scale(.93); opacity:0;} to{transform:scale(1); opacity:1;}}
+    /* Particles background container */
+    #particles-bg {
+      position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none;
+      background: var(--bg);
+    }
+    /* Logo */
+    .logo-anim {
+      display: flex; align-items: center; justify-content: center; gap: 15px;
+      margin-bottom: 0; padding: 0; user-select: none;
+    }
+    .logo-svg {
+      width: 55px; height: 55px; display:inline-block; animation: scaleIn 1.4s;
+      margin-left: 6px;
+    }
+    .logo-title {
+      font-size: 2.3rem;
+      font-weight: 900;
+      letter-spacing: 1.2px;
+      font-family: 'Cairo', sans-serif;
+      color: var(--accent);
+      text-shadow: 0 2px 18px #40a8fc44;
+    }
+    /* Header */
+    header {
+      width: 100%; background: var(--surface); box-shadow:0 3px 20px #0005;
+      padding: 0 36px; height: 70px; display: flex; align-items: center; gap: 24px; position: sticky; top:0; z-index: 200;
+      border-bottom: 1.5px solid var(--border);
+      backdrop-filter: blur(6px);
+    }
+    .drawer-btn {
+      background: none; border:none; font-size: 29px; color: var(--accent); cursor: pointer;
+      margin-right: 14px; border-radius: 50%; padding: 7px 12px;
+      transition: background .2s;
+    }
+    .drawer-btn:hover {background: #22304a99;}
+    .header-search-box {
+      margin-left: 20px; flex: 1; display: flex; align-items: center; justify-content: flex-end;
+    }
+    .header-search-input {
+      padding: 10px 18px; border-radius: 14px; border: 2px solid var(--accent2); font-size: 1.11rem;
+      background: var(--surface-alt); color: #fff; min-width: 220px; font-weight:700;
+      outline:none; transition: border .18s;
+      margin-right: 0;
+    }
+    .header-btn {
+      margin-left:18px; background:var(--accent); color:#fff; border:none; padding:13px 32px; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; font-size:1.13rem; box-shadow:var(--shadow); transition:background .22s;
+      letter-spacing:.6px;
+    }
+    .header-btn:hover { background: var(--accent2); }
+    /* Drawer */
+    .drawer {
+      position: fixed; top:0; left:0; height:100vh; width:270px;
+      background: var(--surface); box-shadow: 10px 0 40px #0006;
+      z-index: 220; display: flex; flex-direction: column; gap: 0;
+      transform: translateX(-100%); transition: transform .28s cubic-bezier(.45,1.6,.29,.93);
+      border-top-right-radius: var(--radius-lg); border-bottom-right-radius: var(--radius-lg);
+      border-right: 2px solid var(--accent2);
+    }
+    .drawer.open {transform:translateX(0);}
+    .drawer-header {
+      padding:38px 18px 18px; font-size:1.25rem; color:var(--accent2); font-weight:800;
+      border-bottom:1px solid var(--border); text-align:center; letter-spacing:1.1px;
+    }
+    .drawer-user {
+      padding:12px 0 0 0; text-align:center; font-size:1rem; color:#cfcfed;
+      border-bottom:1px solid var(--border); font-weight:700; letter-spacing:.18px;
+    }
+    .drawer-btns {
+      display: flex; flex-direction: column; gap: 10px; padding: 26px 0 0 0;
+    }
+    .drawer-btn-link {
+      background:none; border:none; color:#fff; font-size:1.12rem; text-align:left;
+      padding: 13px 33px; width: 100%; cursor:pointer; border-radius: 13px 0 0 13px; transition:background .18s, color .18s;
+      font-weight:700; letter-spacing:.1px; opacity: .93;
+    }
+    .drawer-btn-link.active, .drawer-btn-link:hover {
+      background: var(--accent);
+      color: #fff; opacity:1; box-shadow: 0 3px 14px #40a8fc26;
+    }
+    .drawer-close {position:absolute;top:11px;right:10px; font-size:1.7rem; color:#fff; background:none; border:none; cursor:pointer;}
+    /* Main Content */
+    .main-content {
+      margin: 44px 0 0 0; min-height:67vh; max-width:950px; margin-inline:auto; padding: 0 11px;
+      animation: fadeIn .8s; position: relative; z-index:2;
+    }
+    .plus-btn {
+      display: flex; align-items: center; justify-content:center;
+      position: fixed; right:22px; bottom:22px; z-index:90;
+      width:62px; height:62px; font-size:2.15rem; background: var(--accent); color:#fff; border:none; border-radius: 50%; box-shadow:0 9px 24px #40a8fc44; cursor:pointer; animation: scaleIn .6s;
+      border:4px solid #fff1;transition: box-shadow .21s, background .23s;
+    }
+    .plus-btn:hover { background: var(--accent2); }
+    .no-scripts-msg {
+      margin: 80px auto 0; padding: 44px 24px 44px;
+      background:var(--surface); border-radius:var(--radius-lg); box-shadow:var(--shadow);
+      text-align:center; font-size:1.7rem; color:#b2bec3; animation:fadeIn .8s;
+      font-weight:800; letter-spacing:1.1px;
+    }
+    .scripts-list {
+      display: grid; grid-template-columns: repeat(auto-fit,minmax(330px,1fr)); gap: 30px 24px; margin: 0 0 48px;
+      animation: fadeIn 1s;
+    }
+    .script-card {
+      background: var(--card); border-radius: var(--radius);
+      box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column;
+      animation: fadeIn .6s; position:relative; cursor:pointer; transition: box-shadow .22s, transform .19s;
+      border:1.5px solid var(--border);
+    }
+    .script-card:hover {box-shadow:0 9px 28px #2196f344; transform:scale(1.025);}
+    .script-card-header {
+      background:var(--surface-alt); padding: 15px 18px 0 18px; font-size:1.13rem; font-weight:800; color:var(--accent2); min-height:36px; letter-spacing:.4px;
+      display:flex; align-items:center; gap:7px;
+    }
+    .script-card-img {
+      width:100%; height:170px; object-fit:cover; background:#191923; border-radius:0 0 18px 18px; margin-bottom:0;
+      border-bottom: 2.5px solid var(--accent);
+    }
+    .script-card-row {display:flex; align-items:center; gap:10px; margin:8px 0 0 0; padding:0 18px;}
+    .script-card-hacks, .script-card-device {
+      font-size:1.04rem; gap:7px;
+    }
+    .script-card-hack, .script-card-device-tag {
+      background:var(--accent2); color:#fff; padding:4px 13px; border-radius:14px; font-size:.96em; font-weight:700;
+      letter-spacing:0.3px; margin-right:2px;
+      box-shadow:0 2px 10px #40a8fc22;
+    }
+    .script-card-desc {
+      padding: 11px 20px 17px 20px; color:#b2bec3; font-size:1.01rem; min-height:39px; font-weight:600;
+      border-bottom:1px solid #22304a44;
+      letter-spacing:.21px;
+    }
+    .script-card-footer {
+      display:flex; flex-direction:row; align-items:center; gap:14px; padding: 13px 18px 12px 18px;
+    }
+    .script-card-script-box {
+      background: #172036; color: #fafaff;
+      border-radius: 13px; padding: 13px 12px 13px; font-family: 'Inter', monospace; font-size:1.01rem; margin:8px 13px 0 13px;
+      overflow-x:auto; position:relative; transition: background .13s;
+      box-shadow:0 0 0 #0000;
+      border:1px solid #22304a44;
+      min-height:40px; word-break:break-all;
+      font-weight:600;
+    }
+    .script-card-script-box:active,
+    .script-card-script-box.open {
+      background: #22304a;
+      box-shadow:0 0 0 2px var(--accent2);
+    }
+    .script-card-btns {display:flex; gap:10px; margin:7px 0 0 15px;}
+    .script-copy-btn, .script-raw-btn, .script-download-btn, .script-delete-btn {
+      padding:7px 17px; border:none; border-radius: 11px; font-weight:700; font-size:1.01em; cursor:pointer;
+      background: var(--accent); color: #fff; box-shadow:0 2px 9px #40a8fc22; transition:background .18s, color .13s, box-shadow .12s;
+      outline: none;
+    }
+    .script-copy-btn.copied {background:var(--success);}
+    .script-delete-btn {background: var(--danger);}
+    .script-raw-btn {background: var(--surface-alt);}
+    .script-download-btn {background: var(--success);}
+    .script-card-owner {font-size:.93em; color:#aaa; margin:auto 0 0 auto; font-weight:600;}
+    .script-card-delete {
+      position: absolute; top: 13px; right: 13px; z-index: 12;
+      background: none; border:none; color:var(--danger); font-size:1.25em; cursor:pointer;
+      display:none; opacity:.7; transition:opacity .11s;
+    }
+    .script-card.own .script-card-delete {display:block;}
+    .script-card-delete:hover {opacity:1;}
+    /* Filter Bar */
+    .filter-bar {
+      display: flex; gap: 15px; flex-wrap: wrap; margin: 0 0 17px;
+      align-items:center; justify-content: flex-start;
+      padding: 9px 0 10px 0;
+    }
+    .filter-select {
+      background: var(--card); color:#fff; border:2px solid var(--border); border-radius:12px; padding:8px 15px; font-size:1.04em;
+      outline:none; min-width:110px; font-weight:700; letter-spacing:.1px;
+      box-shadow: 0 2px 7px #2196f311;
+    }
+    /* Dialog */
+    .dialog-bg {
+      position: fixed; top:0; left:0; width:100vw; height:100vh; background:#101522e0; display:flex; align-items:center; justify-content:center; z-index:950;
+      animation: fadeIn .23s; backdrop-filter: blur(2px);
+    }
+    .dialog-box {
+      background: var(--surface-alt);
+      border-radius: 16px; box-shadow:0 12px 48px #000b;
+      padding: 32px 22px 26px; min-width:260px; max-width:96vw; text-align:center; font-size:1.09rem; color:#fff; animation: scaleIn .21s;
+    }
+    .dialog-title {font-size:1.11em; font-weight:800; margin-bottom:11px; color:var(--accent);}
+    .dialog-actions {display:flex; gap:10px; margin-top:15px; justify-content:center;}
+    .dialog-btn {
+      padding:7px 21px; border:none; border-radius:9px; font-weight:700; font-size:1.05em; cursor:pointer;
+      background: var(--accent2); color:#fff; transition:background .12s;
+      box-shadow:0 2px 10px #40a8fc22;
+    }
+    .dialog-btn.cancel {background:#636e72;}
+    /* Raw Page */
+    #rawPage {
+      position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:20000;
+      background: var(--bg);
+      display: none; flex-direction:column; align-items:center; justify-content:flex-start;
+      animation:fadeIn .3s;
+      overflow:auto;
+    }
+    .raw-header {
+      width:100vw; background:var(--surface-alt); color:var(--accent2); font-size:2rem; font-weight:900; letter-spacing:1px;
+      padding:20px 0 11px 0; text-align:center; border-bottom:2px solid var(--accent2);
+      font-family:'Cairo',sans-serif;
+      box-shadow:0 6px 32px #40a8fc22;
+      margin-bottom:10px;
+    }
+    .raw-link-container {
+      width: 100vw; text-align: center; margin: 20px 0 0 0;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      flex-direction: row;
+    }
+    .raw-link-url {
+      font-size: 1.02em; color: #b2bec3; background:var(--surface); border-radius:7px; padding: 6px 14px;
+      border:1px solid var(--accent2); direction:ltr; text-align:left; user-select: all;
+      max-width: 65vw; overflow-x: auto; word-break: break-all;
+    }
+    .raw-link-copy-btn {
+      display:inline-flex; align-items:center; gap:6px; padding:7px 13px; border:none; border-radius:10px; font-size:1.01em;
+      font-weight:800; background:var(--accent2); color:#fff; cursor:pointer; transition:background .14s;
+      margin-left:10px;
+    }
+    .raw-link-copy-btn.copied {background:var(--success);}
+    .raw-codebox {
+      width:95vw; max-width:900px; background:#172036;
+      margin:30px auto 56px; color:#fff;
+      border-radius:18px; font-size:1.09rem;
+      font-family: 'Fira Mono', 'Consolas', monospace;
+      padding:27px 13px 27px 11px; border:2px solid #22304a;
+      box-shadow:0 8px 35px #000c;
+      word-break:break-all;
+      overflow-x:auto; white-space:pre;
+      direction:ltr; text-align:left;
+      animation:scaleIn .5s;
+      position:relative;
+    }
+    .raw-copy-btn {
+      position:absolute; top:10px; right:10px; z-index:11; display:flex; align-items:center; gap:7px;
+      background:var(--accent2); color:#fff; border:none; border-radius:10px; font-size:.98em; font-weight:700; padding:6px 13px; cursor:pointer; transition:background .13s;
+      box-shadow:0 2px 8px #40a8fc22;
+    }
+    .raw-copy-btn.copied {background:var(--success);}
+    .raw-copy-btn svg {vertical-align:middle;}
+    .raw-close-btn {
+      position:fixed; right:24px; top:12px; z-index:222222; background:var(--danger); color:#fff; font-size:1.08rem; padding:8px 21px; border-radius:9px; border:none; font-weight:900; cursor:pointer; box-shadow:0 2px 8px #e1705522;
+      transition:background .11s;
+    }
+    .raw-close-btn:hover {background:#d63031;}
+    /* Add Script Page, Details, Auth, Responsive ... */
+    .add-script-page, .details-page {
+      max-width:540px; margin:0 auto; padding:24px 0; animation: fadeIn .32s;
+      background: var(--surface); border-radius: var(--radius-lg); box-shadow:0 8px 24px #22304a22;
+      margin-bottom: 40px;
+    }
+    .add-form-label {display:block; font-size:1.04em; margin:13px 0 6px; font-weight:700; color:var(--accent);}
+    .add-form-input, .add-form-textarea {
+      width:100%; padding:10px; border-radius:9px; border:1px solid var(--border); background:var(--card); color:#fff; font-size:1.01em; margin-bottom:6px; font-weight:700;
+      box-shadow: 0 2px 8px #22304a11;
+      outline:none;
+    }
+    .add-form-textarea {height:80px; resize:vertical;}
+    .add-form-hacks, .add-form-devices {
+      display:flex; gap:7px; flex-wrap:wrap; margin-bottom:7px;
+    }
+    .add-form-hack, .add-form-device {
+      padding:6px 14px; border-radius:11px; border:2px solid var(--accent2); background:var(--bg); color:#fff; cursor:pointer; font-size:.98em; font-weight:800; transition:background .13s, color .13s, border .14s;
+      letter-spacing:.1px;
+    }
+    .add-form-hack.selected, .add-form-device.selected {
+      background: var(--accent); color: #fff; border-color:var(--accent);
+      box-shadow:0 2px 8px #40a8fc22;
+    }
+    .add-form-img-preview {
+      width:100%; max-height:120px; object-fit:cover; border-radius:11px; margin-bottom:5px;
+      border:1px solid var(--border); background:#22304a;
+      box-shadow: 0 2px 7px #40a8fc11;
+    }
+    .add-form-actions {
+      display:flex; gap:10px; margin:18px 0 0 0; justify-content: flex-end;
+    }
+    .add-form-btn {
+      padding:9px 25px; border:none; border-radius:11px; font-weight:800; font-size:1.08em; background:var(--accent); color:#fff; cursor:pointer;
+      box-shadow:0 2px 8px #2196f322;
+      transition: background .13s;
+      letter-spacing:.2px;
+    }
+    .add-form-btn.cancel {background:#636e72;}
+    .details-header {
+      font-size:1.45rem; font-weight:900; color:var(--accent2); margin-bottom:10px; text-align:center; letter-spacing:.5px;
+      text-shadow:0 2px 10px #40a8fc11;
+    }
+    .details-image {width:100%; max-height:170px; object-fit:cover; margin-bottom:12px; border-radius:var(--radius); box-shadow:0 2px 13px #40a8fc0a;}
+    .details-hacks, .details-device, .details-tags {display:flex; gap:7px; flex-wrap:wrap; margin-bottom:10px;}
+    .details-hack, .details-device-tag, .details-tag {
+      background:var(--accent2); color:#fff; padding:4px 14px; border-radius:13px; font-size:1em; font-weight:700; letter-spacing:.1px;
+      box-shadow:0 2px 10px #40a8fc18;
+    }
+    .details-desc {
+      background: #172036; padding: 9px 12px; border-radius:8px; color:#dedede; font-size:.99em; margin-bottom:11px; font-weight:600;
+      border:1px solid #22304a44;
+    }
+    .details-script-box {
+      background: #15151a; color: #fafaff; border-radius: 9px; padding: 16px 10px; font-family: 'Inter', monospace; font-size:1.07rem; margin-bottom:11px;
+      overflow-x:auto; position:relative; border:1px solid #22304a44; font-weight:600;
+    }
+    .details-btns {display:flex; gap:10px;}
+    .details-btn {padding:8px 19px; border:none; border-radius:9px; font-weight:800; font-size:1.03em; background:var(--accent); color:#fff; cursor:pointer;}
+    .details-btn.copy.copied {background:var(--success);}
+    .details-btn.raw{background:var(--surface-alt);}
+    .details-btn.download{background:var(--success);}
+    .auth-bg {
+      position:fixed;top:0;left:0;width:100vw;height:100vh;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:2000;
+      animation:fadeIn .65s;backdrop-filter: blur(3px);
+    }
+    .auth-box {
+      background:var(--surface-alt);
+      border-radius:18px; box-shadow: 0 16px 50px #191b1eaa;
+      padding:36px 22px 22px; min-width:290px; max-width:97vw; text-align:center; color:#fff; animation:scaleIn .37s;
+      position:relative;
+      border:2px solid var(--accent2);
+      margin: 0 12px;
+    }
+    .auth-title {font-size:1.35rem; font-weight:800; color:var(--accent2); margin-bottom:13px; letter-spacing:.13px;}
+    .auth-label {display:block; text-align:left; margin:7px 0 2px; font-size:1em; font-weight:700; color:var(--accent);}
+    .auth-input {width:100%; padding:8px 9px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:#fff; font-size:1em; font-weight:800;}
+    .auth-btn {
+      padding:10px 25px; border:none; border-radius:10px; font-weight:800; font-size:1.08em; background:var(--accent2); color:#fff; cursor:pointer; margin-top:14px;
+      transition:background .13s; box-shadow:0 2px 8px #40a8fc22;
+      letter-spacing:.1px;
+    }
+    .auth-btn.google {background:#fff; color:var(--accent2); border:1px solid #eee; margin-bottom:8px; letter-spacing:.1px;}
+    .auth-btn.google:hover {background:#f3f3fb;}
+    .auth-switch {margin-top:13px; color:#bbb; font-weight:700;}
+    .auth-switch-btn {background:none; border:none; color:var(--accent); font-size:1.03em; cursor:pointer; font-weight:800;}
+    .auth-err {color:var(--danger); font-size:1em; margin-top:9px; animation:fadeIn .3s; font-weight:700;}
+    @media (max-width:900px) {
+      .main-content { max-width:98vw;}
+      .drawer {width:180px;}
+      .details-page, .add-script-page {max-width:96vw;}
+    }
+    @media (max-width:600px) {
+      .main-content {padding: 0;}
+      .drawer {width:94vw;}
+      .plus-btn {right:7px;}
+      .details-page, .add-script-page {padding: 10px 2vw;}
+      .raw-codebox {font-size:.97rem; padding:13px 2vw;}
+      .header-search-box {min-width: 0;}
+    }
+  </style>
+</head>
+<body>
+  <!-- Particles background -->
+  <canvas id="particles-bg"></canvas>
+  <!-- Raw Page Overlay -->
+  <div id="rawPage">
+    <button class="raw-close-btn" onclick="closeRawPage()">✖ إغلاق</button>
+    <div class="raw-header">XnScripts Raw</div>
+    <div class="raw-link-container">
+      <span class="raw-link-url" id="rawLinkUrl"></span>
+      <button class="raw-link-copy-btn" id="rawLinkCopyBtn" onclick="copyRawLink(event)">
+        <svg style="width:18px;height:18px" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <rect x="9" y="9" width="13" height="13" rx="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="2" y="2" width="13" height="13" rx="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span id="rawLinkCopyText">Copy</span>
+      </button>
+    </div>
+    <div class="raw-codebox" id="rawCodeBox" style="position:relative;">
+      <button class="raw-copy-btn" id="rawCopyBtn" onclick="copyRawCode(event)">
+        <svg style="width:18px;height:18px" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <rect x="9" y="9" width="13" height="13" rx="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="2" y="2" width="13" height="13" rx="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span id="rawCopyText">Copy</span>
+      </button>
+    </div>
+  </div>
+  <!-- Drawer -->
+  <nav class="drawer" id="drawer">
+    <button class="drawer-close" onclick="toggleDrawer(false)">×</button>
+    <div class="drawer-header">XnScripts</div>
+    <div class="drawer-user" id="drawerUser"></div>
+    <div class="drawer-btns">
+      <button class="drawer-btn-link active" id="drawerAllBtn" onclick="switchPage('main')">جميع السكربتات</button>
+      <button class="drawer-btn-link" id="drawerMyBtn" onclick="switchPage('my')">سكربتاتي</button>
+    </div>
+  </nav>
+  <!-- Header -->
+  <header>
+    <button class="drawer-btn" onclick="toggleDrawer(true)">☰</button>
+    <div class="logo-anim">
+      <!-- Simple animated SVG logo -->
+      <svg class="logo-svg" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="30" fill="#1d263b" stroke="#40a8fc" stroke-width="4"/>
+        <text x="50%" y="54%" text-anchor="middle" font-size="34" font-family="Cairo,Arial" fill="#40a8fc" font-weight="bold" dy=".13em">
+          <animate attributeName="fill" values="#40a8fc;#2196f3;#40a8fc" dur="2s" repeatCount="indefinite"/>
+          Xn
+        </text>
+      </svg>
+      <span class="logo-title">XnScripts</span>
+    </div>
+    <div class="header-search-box">
+      <input class="header-search-input" id="searchInput" placeholder="ابحث عن سكربت ..." autocomplete="off" oninput="doSearch()">
+    </div>
+    <button class="header-btn" onclick="openAddScript()" id="headerAddBtn">+ نشر سكربت</button>
+  </header>
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent"></div>
+  <button class="plus-btn" onclick="openAddScript()" id="plusBtn" title="نشر سكربت جديد">+</button>
+  <!-- Dialog Overlay -->
+  <div id="dialogOverlay" style="display:none;"></div>
+  <!-- Auth Modal -->
+  <div class="auth-bg" id="authBg" style="display:none;">
+    <form class="auth-box" id="authBox" autocomplete="off" onsubmit="return false">
+      <div class="logo-anim" style="margin-bottom: 10px;">
+        <svg class="logo-svg" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="30" fill="#1d263b" stroke="#40a8fc" stroke-width="4"/>
+          <text x="50%" y="54%" text-anchor="middle" font-size="34" font-family="Cairo,Arial" fill="#40a8fc" font-weight="bold" dy=".13em">
+            <animate attributeName="fill" values="#40a8fc;#2196f3;#40a8fc" dur="2s" repeatCount="indefinite"/>
+            Xn
+          </text>
+        </svg>
+        <span class="logo-title" style="font-size:1.4rem;">XNScripts</span>
+      </div>
+      <div class="auth-title" id="authTitle">Sign In</div>
+      <button class="auth-btn google" onclick="fakeGoogleAuth()">تسجيل الدخول بحساب Google</button>
+      <div class="auth-label">البريد الإلكتروني</div>
+      <input class="auth-input" id="authEmail" type="email" autocomplete="username" required>
+      <div class="auth-label">كلمة المرور</div>
+      <input class="auth-input" id="authPass" type="password" autocomplete="current-password" required>
+      <button class="auth-btn" id="authSubmitBtn">تسجيل الدخول</button>
+      <div class="auth-err" id="authErr" style="display:none;"></div>
+      <div class="auth-switch">
+        <span id="authSwitchMsg">ليس لديك حساب؟</span>
+        <button class="auth-switch-btn" type="button" onclick="toggleAuthMode()"><span id="authSwitchBtn">إنشاء حساب جديد</span></button>
+      </div>
+    </form>
+  </div>
+  <!-- Particles JS -->
+  <script>
+    // --- Particles White ---
+    const canvas = document.getElementById('particles-bg');
+    const ctx = canvas.getContext('2d');
+    let W = window.innerWidth,H=window.innerHeight;
+    let particles = [];
+    function resizeParticlesBG(){
+      W=window.innerWidth;H=window.innerHeight;canvas.width=W;canvas.height=H;
+    }
+    window.addEventListener('resize',resizeParticlesBG);
+    function Particle(){
+      this.x = Math.random()*W;
+      this.y = Math.random()*H;
+      this.r = Math.random()*1.2+1.3;
+      this.d = Math.random()*W/7+40;
+      this.t = Math.random()*360;
+      this.s = Math.random()*0.5+0.5;
+    }
+    function drawParticles(){
+      ctx.clearRect(0,0,W,H);
+      for(let i=0;i<particles.length;i++){
+        let p=particles[i];
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,2*Math.PI,false);
+        ctx.fillStyle="#fff";
+        ctx.globalAlpha=0.13 + Math.abs(Math.sin(p.t))*0.24;
+        ctx.shadowColor="#fff";
+        ctx.shadowBlur=10;
+        ctx.fill();
+      }
+      ctx.globalAlpha=1;
+      ctx.shadowBlur=0;
+    }
+    function updateParticles(){
+      for(let i=0;i<particles.length;i++){
+        let p=particles[i];
+        p.x += Math.sin(p.t)*p.s;
+        p.y += Math.cos(p.t)*p.s;
+        p.t += 0.013;
+        if(p.x<0 || p.x>W || p.y<0 || p.y>H){
+          p.x=Math.random()*W;p.y=Math.random()*H;
+        }
+      }
+    }
+    function animateParticles(){
+      updateParticles();
+      drawParticles();
+      requestAnimationFrame(animateParticles);
+    }
+    function initParticles(){
+      resizeParticlesBG();
+      particles=[];
+      let count = Math.floor(W*H/6000)+24;
+      for(let i=0;i<count;i++) particles.push(new Particle());
+    }
+    window.addEventListener('resize',()=>{initParticles()});
+    setTimeout(()=>{initParticles();animateParticles();},100);
+
+    // ========== Helper Functions ==========
+    const $ = (id) => document.getElementById(id);
+    const sleep = (ms) => new Promise(r=>setTimeout(r,ms));
+    const hacksList = [
+      "Fluxus", "Delta", "KRNL", "Trigon", "Synapse X", "Arceus X", "Hydrogen", "All"
+    ];
+    const deviceList = ["Mobile", "PC", "Tablet", "All"];
+    const defaultImg = "https://i.ibb.co/4Z1t5tR/roblox-script.jpg";
+    // ========== Data Storage ==========
+    function getUsers(){ return JSON.parse(localStorage.getItem('xenoUsers')||'[]'); }
+    function setUsers(users){ localStorage.setItem('xenoUsers',JSON.stringify(users)); }
+    function getScripts(){ return JSON.parse(localStorage.getItem('xenoScripts')||'[]'); }
+    function setScripts(scripts){ localStorage.setItem('xenoScripts',JSON.stringify(scripts)); }
+    function setCurrentUser(user){ localStorage.setItem('xenoCurrentUser',JSON.stringify(user)); }
+    function getCurrentUser(){ return JSON.parse(localStorage.getItem('xenoCurrentUser')||'null'); }
+    function setScriptIdCounter(id){ localStorage.setItem('xenoScriptId',id);}
+    function getScriptIdCounter(){ return +(localStorage.getItem('xenoScriptId')||'1'); }
+    // ========== Auth System ==========
+    let authMode = 'login';
+    function showAuth(mode='login'){
+      authMode=mode;
+      $('authBg').style.display='flex';
+      $('authTitle').textContent = mode==='login'? 'تسجيل الدخول' : 'إنشاء حساب جديد';
+      $('authSubmitBtn').textContent = mode==='login'? 'تسجيل الدخول' : 'إنشاء حساب';
+      $('authSwitchMsg').textContent = mode==='login'? 'ليس لديك حساب؟' : 'لديك حساب بالفعل؟';
+      $('authSwitchBtn').textContent = mode==='login'? 'إنشاء حساب جديد' : 'تسجيل الدخول';
+      $('authErr').style.display='none';
+      $('authEmail').value = ''; $('authPass').value = '';
+    }
+    function toggleAuthMode(){ showAuth(authMode==='login'?'signup':'login'); }
+    function fakeGoogleAuth(){
+      let randEmail = 'user'+Math.floor(Math.random()*10000)+'@gmail.com';
+      $('authEmail').value=randEmail;
+      $('authPass').value='';
+      $('authTitle').textContent='اكمل التسجيل';
+    }
+    $('authBox').onsubmit = function(e){
+      e.preventDefault();
+      let email = $('authEmail').value.trim().toLowerCase();
+      let pass = $('authPass').value.trim();
+      let users = getUsers();
+      if(authMode==='signup'){
+        if(users.find(u=>u.email===email)){
+          showAuth('signup');
+          $('authErr').textContent='الحساب موجود مسبقًا!'; $('authErr').style.display='block'; return false;
+        }
+        if(!email.match(/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/)){
+          $('authErr').textContent='Your Email Is Wrong Try Again!'; $('authErr').style.display='block'; return false;
+        }
+        if(pass.length<5){
+          $('authErr').textContent='كلمة المرور قصيرة جداً!'; $('authErr').style.display='block'; return false;
+        }
+        let name = email.split('@')[0];
+        let user = {email,pass,name,id: Date.now()};
+        users.push(user); setUsers(users); setCurrentUser(user);
+        $('authBg').style.display='none'; renderAll();
+        return false;
+      }
+      let found = users.find(u=>u.email===email);
+      if(!found){ $('authErr').textContent='Your Email Is Wrong Try Again!'; $('authErr').style.display='block'; return false;}
+      if(found.pass!==pass){ $('authErr').textContent='Your Password is Wrong Try Again!'; $('authErr').style.display='block'; return false;}
+      setCurrentUser(found); $('authBg').style.display='none'; renderAll();
+    }
+    // ========== Drawer ==========
+    function toggleDrawer(open){
+      const drawer=$('drawer');
+      if(open){drawer.classList.add('open');}else{drawer.classList.remove('open');}
+      if(open) drawer.style.animation='slideDrawer .2s';
+    }
+    // ========== Page Switch ==========
+    let currentPage = 'main';
+    let detailsId = null;
+    function switchPage(page, id){
+      currentPage=page; detailsId=id||null;
+      document.querySelectorAll('.drawer-btn-link').forEach(btn=>btn.classList.remove('active'));
+      if(page==='main') $('drawerAllBtn').classList.add('active');
+      if(page==='my') $('drawerMyBtn').classList.add('active');
+      renderAll();
+      toggleDrawer(false);
+    }
+    // ========== Render All ==========
+    let lastSearchValue = "";
+    function renderAll(){
+      let user=getCurrentUser();
+      $('drawerUser').textContent=user?'مرحبًا '+user.name:'';
+      if(!user){ showAuth('login'); return;}
+      if(currentPage==='main') renderMainPage();
+      else if(currentPage==='my') renderMyScripts();
+      else if(currentPage==='add') renderAddScript();
+      else if(currentPage==='details') renderDetails(detailsId);
+      doSearch();
+    }
+    // ========== Main Page ==========
+    let activeDevice='All', activeHack='All';
+    function renderMainPage(){
+      $('mainContent').innerHTML='';
+      let filterBar=document.createElement('div');
+      filterBar.className='filter-bar';
+      let deviceSel=document.createElement('select');
+      deviceSel.className='filter-select'; deviceSel.innerHTML='';
+      deviceList.forEach(d=>{
+        let opt=document.createElement('option');
+        opt.value=d; opt.textContent=d==='All'?'جميع الأجهزة':d;
+        if(d===activeDevice) opt.selected=true;
+        deviceSel.appendChild(opt);
+      });
+      deviceSel.onchange=()=>{activeDevice=deviceSel.value; doSearch();}
+      filterBar.appendChild(deviceSel);
+      let hackSel=document.createElement('select');
+      hackSel.className='filter-select'; hackSel.innerHTML='';
+      hacksList.forEach(h=>{
+        let opt=document.createElement('option');
+        opt.value=h; opt.textContent=h==='All'?'جميع السكربتات':h;
+        if(h===activeHack) opt.selected=true;
+        hackSel.appendChild(opt);
+      });
+      hackSel.onchange=()=>{activeHack=hackSel.value; doSearch();}
+      filterBar.appendChild(hackSel);
+      $('mainContent').appendChild(filterBar);
+      let list=document.createElement('div'); list.className='scripts-list'; list.id='scriptsList';
+      $('mainContent').appendChild(list);
+      doSearch();
+    }
+    // ========== My Scripts ==========
+    function renderMyScripts(){
+      $('mainContent').innerHTML='<div class="filter-bar" style="font-size:1.1em; color:#bbb; font-weight:800;">سكربتاتي</div>';
+      let list=document.createElement('div'); list.className='scripts-list'; list.id='scriptsList';
+      $('mainContent').appendChild(list);
+      doSearch(true);
+    }
+    // ========== Search =============
+    function doSearch(myOnly){
+      let txt = $('searchInput') ? $('searchInput').value.trim() : "";
+      lastSearchValue = txt;
+      let scripts = getScripts();
+      let user = getCurrentUser();
+      let list = $('scriptsList');
+      if(!list) return;
+      let f1 = (sc) => {
+        let deviceOk = activeDevice==='All' || sc.device===activeDevice || sc.device==='All';
+        let hackOk = activeHack==='All' || sc.hacks.includes(activeHack) || sc.hacks.includes('All');
+        let nameOk = !txt || sc.title.toLowerCase().includes(txt.toLowerCase());
+        let myOk = myOnly ? (user && sc.ownerId===user.id) : true;
+        return deviceOk && hackOk && nameOk && myOk;
+      }
+      let filtered = scripts.filter(f1);
+      list.innerHTML = '';
+      if(filtered.length===0){
+        let noMsg=document.createElement('div');
+        noMsg.className='no-scripts-msg';
+        noMsg.textContent=txt ? 'لا يوجد سكربت بهذا الاسم' : 'There are no scripts now';
+        list.appendChild(noMsg); return;
+      }
+      filtered.slice().reverse().forEach(sc=>{ list.appendChild(renderScriptCard(sc,user)); });
+    }
+    // ========== Script Card ==========
+    function renderScriptCard(sc,user,isOwn){
+      let card=document.createElement('div');
+      card.className='script-card'+(user&&sc.ownerId===user.id?' own':'');
+      card.onclick=(e)=>{ if(!e.target.classList.contains('script-card-delete')) openDetails(sc.id);}
+      let head=document.createElement('div'); head.className='script-card-header'; head.textContent=sc.title;
+      card.appendChild(head);
+      let img=document.createElement('img'); img.className='script-card-img'; img.src=sc.img||defaultImg;
+      card.appendChild(img);
+      let hacksRow=document.createElement('div'); hacksRow.className='script-card-row script-card-hacks';
+      sc.hacks.forEach(h=>{let tag=document.createElement('span'); tag.className='script-card-hack'; tag.textContent=h; hacksRow.appendChild(tag);});
+      card.appendChild(hacksRow);
+      let devRow=document.createElement('div'); devRow.className='script-card-row script-card-device';
+      let devTag=document.createElement('span'); devTag.className='script-card-device-tag'; devTag.textContent=sc.device;
+      devRow.appendChild(devTag); card.appendChild(devRow);
+      let desc=document.createElement('div'); desc.className='script-card-desc'; desc.textContent=sc.desc;
+      card.appendChild(desc);
+      let scriptBox=document.createElement('div'); scriptBox.className='script-card-script-box'; scriptBox.textContent=sc.code;
+      scriptBox.onclick=function(e){
+        e.stopPropagation();
+        scriptBox.classList.toggle('open');
+        let btns=this.parentElement.querySelector('.script-card-btns');
+        if(btns) btns.style.display=scriptBox.classList.contains('open')?'flex':'none';
+      }
+      card.appendChild(scriptBox);
+      let btns=document.createElement('div'); btns.className='script-card-btns'; btns.style.display='none';
+      let rawBtn=document.createElement('button'); rawBtn.className='script-raw-btn'; rawBtn.textContent='Raw';
+      rawBtn.onclick=(e)=>{e.stopPropagation(); showRawPage(sc.code);}
+      btns.appendChild(rawBtn);
+      let copyBtn=document.createElement('button'); copyBtn.className='script-copy-btn'; copyBtn.textContent='Copy';
+      copyBtn.onclick=(e)=>{e.stopPropagation(); copyScript(copyBtn,sc.code);}
+      btns.appendChild(copyBtn);
+      let downloadBtn=document.createElement('button'); downloadBtn.className='script-download-btn'; downloadBtn.textContent='Download';
+      downloadBtn.onclick=(e)=>{e.stopPropagation(); downloadScript(sc.code,sc.title);}
+      btns.appendChild(downloadBtn);
+      card.appendChild(btns);
+      let owner=document.createElement('div'); owner.className='script-card-owner'; owner.textContent='بواسطة: '+sc.ownerName;
+      card.appendChild(owner);
+      if(user&&sc.ownerId===user.id){
+        let delBtn=document.createElement('button'); delBtn.className='script-card-delete'; delBtn.innerHTML='🗑';
+        delBtn.onclick=(e)=>{e.stopPropagation(); showDeleteDialog(sc);}
+        card.appendChild(delBtn);
+      }
+      return card;
+    }
+    // ========== Copy Script ==========
+    function copyScript(btn,code){
+      navigator.clipboard.writeText(code);
+      btn.textContent='Copied!';
+      btn.classList.add('copied');
+      setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},3000);
+    }
+    // ========== Download Script ==========
+    function downloadScript(code,filename){
+      let blob=new Blob([code],{type:"text/plain"});
+      let a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download=filename||'script.txt';
+      a.click();
+    }
+    // ========== Raw Page ==========
+    function showRawPage(code){
+      $('rawPage').style.display='flex';
+      const url = location.href.split("#")[0] + "#raw";
+      $('rawLinkUrl').textContent = url;
+      $('rawCodeBox').textContent = code;
+      $('rawCopyText').textContent = "Copy";
+      $('rawCopyBtn').classList.remove("copied");
+      $('rawLinkCopyText').textContent = "Copy";
+      $('rawLinkCopyBtn').classList.remove("copied");
+      window.scrollTo(0,0);
+    }
+    function closeRawPage(){
+      $('rawPage').style.display='none';
+      $('rawCodeBox').textContent='';
+    }
+    function copyRawCode(e){
+      e.preventDefault();
+      let code = $('rawCodeBox').textContent;
+      navigator.clipboard.writeText(code);
+      $('rawCopyText').textContent = "Copied!";
+      $('rawCopyBtn').classList.add("copied");
+      setTimeout(()=>{
+        $('rawCopyText').textContent = "Copy";
+        $('rawCopyBtn').classList.remove("copied");
+      }, 3000);
+    }
+    function copyRawLink(e){
+      e.preventDefault();
+      let url = $('rawLinkUrl').textContent;
+      navigator.clipboard.writeText(url);
+      $('rawLinkCopyText').textContent = "Copied!";
+      $('rawLinkCopyBtn').classList.add("copied");
+      setTimeout(()=>{
+        $('rawLinkCopyText').textContent = "Copy";
+        $('rawLinkCopyBtn').classList.remove("copied");
+      }, 3000);
+    }
+    // ========== Show Delete Dialog ==========
+    function showDeleteDialog(sc){
+      showDialog('حذف السكربت',
+        `هل أنت متأكد من أنك تريد حذف هذا السكربت"<b>${sc.title}</b>"؟`,
+        [
+          {text:'حذف',action:()=>{ deleteScript(sc.id); hideDialog();},danger:true},
+          {text:'إلغاء',action:hideDialog}
+        ]);
+    }
+    // ========== Delete Script ==========
+    function deleteScript(id){
+      let user=getCurrentUser();
+      let scripts=getScripts();
+      setScripts(scripts.filter(sc=>sc.id!==id || sc.ownerId!==user.id));
+      renderAll();
+    }
+    // ========== Open Add Script Page ==========
+    function openAddScript(){
+      currentPage='add'; renderAll();
+    }
+    // ========== Render Add Script Page ==========
+    function renderAddScript(){
+      let user=getCurrentUser();
+      let page=document.createElement('div'); page.className='add-script-page';
+      let title=document.createElement('div'); title.className='add-form-label'; title.textContent='اسم السكربت';
+      let titleInput=document.createElement('input'); titleInput.className='add-form-input'; titleInput.required=true;
+      let imgLbl=document.createElement('div'); imgLbl.className='add-form-label'; imgLbl.textContent='صورة السكربت';
+      let imgInput=document.createElement('input'); imgInput.type='file'; imgInput.accept='image/*'; imgInput.className='add-form-input';
+      let imgPreview=document.createElement('img'); imgPreview.className='add-form-img-preview'; imgPreview.src=defaultImg;
+      imgInput.onchange=(e)=>{
+        let file=e.target.files[0];
+        if(file){
+          let r=new FileReader();
+          r.onload=(ev)=>{imgPreview.src=ev.target.result;}
+          r.readAsDataURL(file);
+        }
+      }
+      let hacksLbl=document.createElement('div'); hacksLbl.className='add-form-label'; hacksLbl.textContent='الهكرات';
+      let hacksBox=document.createElement('div'); hacksBox.className='add-form-hacks';
+      let selectedHacks=[];
+      hacksList.forEach(h=>{
+        let hackBtn=document.createElement('div'); hackBtn.className='add-form-hack'; hackBtn.textContent=h;
+        hackBtn.onclick=function(){
+          if(h==='All'){selectedHacks=['All']; hacksBox.querySelectorAll('.add-form-hack').forEach(b=>b.classList.remove('selected')); hackBtn.classList.add('selected');}
+          else{
+            if(selectedHacks.includes('All')) selectedHacks=[];
+            let idx=selectedHacks.indexOf(h);
+            if(idx>-1){selectedHacks.splice(idx,1); hackBtn.classList.remove('selected');}
+            else{selectedHacks.push(h); hackBtn.classList.add('selected');}
+          }
+        }
+        hacksBox.appendChild(hackBtn);
+      });
+      let devLbl=document.createElement('div'); devLbl.className='add-form-label'; devLbl.textContent='الجهاز';
+      let devBox=document.createElement('div'); devBox.className='add-form-devices';
+      let selectedDev='All';
+      deviceList.forEach(d=>{
+        let devBtn=document.createElement('div'); devBtn.className='add-form-device'; devBtn.textContent=d;
+        devBtn.onclick=function(){
+          selectedDev=d;
+          devBox.querySelectorAll('.add-form-device').forEach(b=>b.classList.remove('selected'));
+          devBtn.classList.add('selected');
+        }
+        if(d==='All'){devBtn.classList.add('selected');}
+        devBox.appendChild(devBtn);
+      });
+      let descLbl=document.createElement('div'); descLbl.className='add-form-label'; descLbl.textContent='وصف السكربت';
+      let descInput=document.createElement('textarea'); descInput.className='add-form-textarea';
+      let linkLbl=document.createElement('div'); linkLbl.className='add-form-label'; linkLbl.textContent='رابط اللعبة (اختياري)';
+      let linkInput=document.createElement('input'); linkInput.className='add-form-input'; linkInput.type='url';
+      let codeLbl=document.createElement('div'); codeLbl.className='add-form-label'; codeLbl.textContent='السكربت';
+      let codeInput=document.createElement('textarea'); codeInput.className='add-form-textarea'; codeInput.required=true;
+      let actions=document.createElement('div'); actions.className='add-form-actions';
+      let postBtn=document.createElement('button'); postBtn.className='add-form-btn'; postBtn.textContent='نشر السكربت';
+      let cancelBtn=document.createElement('button'); cancelBtn.className='add-form-btn cancel'; cancelBtn.textContent='إلغاء';
+      cancelBtn.onclick=()=>{switchPage('main');}
+      postBtn.onclick=async()=>{
+        let titleVal=titleInput.value.trim(), descVal=descInput.value.trim(), codeVal=codeInput.value.trim();
+        if(!titleVal||!codeVal||selectedHacks.length===0||!selectedDev){alert('يرجى تعبئة جميع الحقول المطلوبة!');return;}
+        let scripts=getScripts();
+        let id=getScriptIdCounter()+1; setScriptIdCounter(id);
+        let imgVal=imgPreview.src;
+        if(imgVal.length<10) imgVal=defaultImg;
+        let sc={
+          id, title:titleVal, desc:descVal, code:codeVal,
+          img:imgVal, hacks:selectedHacks.slice(), device:selectedDev,
+          ownerId:user.id, ownerName:user.name, link:linkInput.value.trim()
+        };
+        scripts.push(sc); setScripts(scripts);
+        $('mainContent').innerHTML='<div class="no-scripts-msg" style="font-size:1.08em; color:var(--accent2); animation:fadeIn .7s;">جاري النشر ...</div>';
+        await sleep(650);
+        switchPage('main');
+      }
+      actions.appendChild(postBtn); actions.appendChild(cancelBtn);
+      page.appendChild(title); page.appendChild(titleInput);
+      page.appendChild(imgLbl); page.appendChild(imgInput); page.appendChild(imgPreview);
+      page.appendChild(hacksLbl); page.appendChild(hacksBox);
+      page.appendChild(devLbl); page.appendChild(devBox);
+      page.appendChild(descLbl); page.appendChild(descInput);
+      page.appendChild(linkLbl); page.appendChild(linkInput);
+      page.appendChild(codeLbl); page.appendChild(codeInput);
+      page.appendChild(actions);
+      $('mainContent').innerHTML=''; $('mainContent').appendChild(page);
+    }
+    // ========== Details Page ==========
+    function openDetails(id){
+      currentPage='details'; detailsId=id; renderAll();
+    }
+    function renderDetails(id){
+      let user=getCurrentUser(); let scripts=getScripts();
+      let sc=scripts.find(x=>x.id===id);
+      if(!sc){switchPage('main');return;}
+      let page=document.createElement('div'); page.className='details-page';
+      let header=document.createElement('div'); header.className='details-header'; header.textContent=sc.title;
+      let img=document.createElement('img'); img.className='details-image'; img.src=sc.img||defaultImg;
+      let hacks=document.createElement('div'); hacks.className='details-hacks';
+      sc.hacks.forEach(h=>{let tag=document.createElement('span'); tag.className='details-hack'; tag.textContent=h; hacks.appendChild(tag);});
+      let device=document.createElement('div'); device.className='details-device'; let tag=document.createElement('span'); tag.className='details-device-tag'; tag.textContent=sc.device; device.appendChild(tag);
+      let desc=document.createElement('div'); desc.className='details-desc'; desc.textContent=sc.desc;
+      let link=document.createElement('div'); if(sc.link){ link.innerHTML='<b>رابط اللعبة: </b><a href="'+sc.link+'" target="_blank">'+sc.link+'</a>'; link.style.marginBottom='10px'; }
+      let code=document.createElement('div'); code.className='details-script-box'; code.textContent=sc.code;
+      let btns=document.createElement('div'); btns.className='details-btns';
+      let rawBtn=document.createElement('button'); rawBtn.className='details-btn raw'; rawBtn.textContent='Raw'; rawBtn.onclick=()=>showRawPage(sc.code);
+      let copyBtn=document.createElement('button'); copyBtn.className='details-btn copy'; copyBtn.textContent='Copy'; copyBtn.onclick=()=>copyScript(copyBtn,sc.code);
+      let downloadBtn=document.createElement('button'); downloadBtn.className='details-btn download'; downloadBtn.textContent='Download'; downloadBtn.onclick=()=>downloadScript(sc.code,sc.title);
+      btns.appendChild(rawBtn); btns.appendChild(copyBtn); btns.appendChild(downloadBtn);
+      if(user&&sc.ownerId===user.id){
+        let delBtn=document.createElement('button'); delBtn.className='details-btn'; delBtn.style.background= 'var(--danger)'; delBtn.textContent='🗑'; delBtn.onclick=()=>showDeleteDialog(sc);
+        btns.appendChild(delBtn);
+      }
+      page.appendChild(header); page.appendChild(img); page.appendChild(hacks); page.appendChild(device);
+      page.appendChild(desc); if(link) page.appendChild(link); page.appendChild(code); page.appendChild(btns);
+      $('mainContent').innerHTML=''; $('mainContent').appendChild(page);
+    }
+    // ========== Dialog ==========
+    function showDialog(title,msg,actions){
+      let ov=$('dialogOverlay');
+      ov.innerHTML='';
+      ov.style.display='flex'; ov.className='dialog-bg';
+      let box=document.createElement('div'); box.className='dialog-box';
+      let t=document.createElement('div'); t.className='dialog-title'; t.innerHTML=title; box.appendChild(t);
+      let m=document.createElement('div'); m.innerHTML=msg; box.appendChild(m);
+      let a=document.createElement('div'); a.className='dialog-actions';
+      actions.forEach(ac=>{
+        let btn=document.createElement('button'); btn.className='dialog-btn'; btn.textContent=ac.text;
+        if(ac.danger) btn.style.background='var(--danger)';
+        if(ac.cancel) btn.classList.add('cancel');
+        btn.onclick=ac.action;
+        a.appendChild(btn);
+      });
+      box.appendChild(a); ov.appendChild(box);
+    }
+    function hideDialog(){ $('dialogOverlay').style.display='none'; }
+    window.onload=renderAll;
+    document.body.addEventListener('click',function(e){
+      if($('drawer').classList.contains('open') && !e.target.closest('.drawer') && !e.target.closest('.drawer-btn')) toggleDrawer(false);
+    });
+  </script>
+</body>
+</html>
